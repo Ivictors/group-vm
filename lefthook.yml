@@ -1,0 +1,8 @@
+# Lightweight local hook; requires explicit installation. CI must repeat the relevant checks.
+pre-commit:
+  parallel: true
+  commands:
+    whitespace:
+      run: git diff --cached --check
+    secrets:
+      run: gitleaks git --staged --redact

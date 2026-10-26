@@ -1,0 +1,13 @@
+name: release-placeholder
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  not-configured:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail safely until authenticated CD is implemented
+        run: |
+          echo 'Release is not configured. Implement O04 with environments, approvals, OIDC and immutable images.'
+          exit 1

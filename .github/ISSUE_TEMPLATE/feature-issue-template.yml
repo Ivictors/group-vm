@@ -1,0 +1,30 @@
+name: Feature / Task
+description: Traceable unit of work
+body:
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective and context
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Verifiable acceptance criteria
+      placeholder: '- [ ] ...'
+    validations:
+      required: true
+  - type: textarea
+    id: deps
+    attributes:
+      label: Dependencies, contracts, and risks
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Tests, affected documentation, and expected evidence

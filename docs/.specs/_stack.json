@@ -1,0 +1,22 @@
+{
+  "repo_type": "greenfield-foundation",
+  "language": "Java (planned)",
+  "framework": "Spring Boot and Quarkus (planned)",
+  "runtime": "Not configured",
+  "build_tool": "Maven (planned, one build per service)",
+  "package_manager": "Maven (planned)",
+  "project_shape": "Monorepo with independent microservices",
+  "frontend": "Angular (MVP, planned)",
+  "database": "PostgreSQL (planned, database per service)",
+  "messaging": "Kafka KRaft (planned)",
+  "gateway": "Kong (planned)",
+  "orchestration": "Kubernetes/Helm (target, not required locally)",
+  "iam": "Keycloak/OIDC (planned)",
+  "payment": "PSP sandbox (provider not selected)",
+  "test_framework": "Not configured",
+  "coverage_tool": "JaCoCo (planned, not configured)",
+  "lint_tool": "Spotless and static analysis (planned, not configured)",
+  "ci": "GitHub Actions foundation validation only",
+  "cd": "Placeholder disabled",
+  "classified_at": "2026-10-18T21:05:00-03:00"
+}
