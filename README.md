@@ -37,4 +37,4 @@ Implement and validate services incrementally. Current CI checks only foundation
 - https://docs.spring.io/spring-boot/reference/
 - https://quarkus.io/guides/
 - https://docs.github.com/en/actions
-- `docs/REFERENCES.md` lists additional official references.
+- `docs/REFERENCES.md` contains the initial version baseline, local tool audit, and additional official references. Selected versions are rechecked when each component is implemented.
