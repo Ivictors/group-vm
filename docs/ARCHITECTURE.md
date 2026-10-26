@@ -70,7 +70,7 @@ D11 Guest cart, guest contact, shipping with two providers, and minimal email de
 ## Superseded decisions and open items
 The initial queue-broker choice was replaced by Kafka KRaft. The initially planned Java gateway was replaced by Kong. The idea of developing with the complete local infrastructure was replaced by running only the required components. Current product scope and service responsibilities are defined here and in `docs/PRODUCT.md`; check each change's scope in its approved GitHub Issue.
 
-Exact versions of Java, Spring Boot, Quarkus, Angular, and other tools require compatibility validation before the first implementation. The final PSP, two shipping providers, RBAC matrix, reservation/quote/code TTLs, timeouts, reconciliation, cancellation/return/refund policy, final hosting choice, validated backup strategy, and retention remain open. The cart TTL is already decided: seven days without activity. The planned stack is summarized in `docs/.specs/_stack.json`.
+The initial version baseline and local tool audit are recorded in `docs/REFERENCES.md`; each implementation issue must recheck patch releases and compatibility before pinning dependencies or images. Kong Community/OSS maintenance needs confirmation before production exposure. The final PSP, two shipping providers, RBAC matrix, reservation/quote/code TTLs, timeouts, reconciliation, cancellation/return/refund policy, final hosting choice, validated backup strategy, and retention remain open. The cart TTL is already decided: seven days without activity. The planned stack is summarized in `docs/.specs/_stack.json`.
 
 ## References
 https://docs.spring.io/spring-boot/reference/
