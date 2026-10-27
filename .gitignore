@@ -13,6 +13,7 @@ docs/commands/
 .env
 .env.*
 !.env.example
+/infra/postgres/compose.yaml
 **/application-local.yml
 **/application-local.yaml
 *.pem
