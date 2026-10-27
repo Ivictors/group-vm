@@ -32,6 +32,16 @@ The public repository has an active [Protect main ruleset](https://github.com/Iv
 
 Use `area:<service-name>` labels for the eleven services in `docs/ARCHITECTURE.md`, plus `area:frontend`, `area:infrastructure`, and `area:governance`. The undated delivery milestones are Foundation, Commerce MVP, Intelligence MVP, and Launch readiness. Labels identify ownership; milestones group delivery goals, not implementation authorization.
 
+## Test-driven development
+
+TDD is the standard for new or changed executable behavior, including bug fixes. Work in small, approved increments using RED → GREEN → REFACTOR:
+
+1. **RED:** Write a meaningful test for the intended behavior and run it before changing production code. Confirm that it fails for the expected reason.
+2. **GREEN:** Make the smallest production change that passes the new test and the relevant existing tests.
+3. **REFACTOR:** Improve the code without changing behavior, rerunning the relevant tests to confirm they still pass.
+
+In the PR, report the RED failure, the GREEN and REFACTOR test commands and results, and any checks not run with reasons. A passing test does not guarantee absolute correctness. Documentation-only changes use applicable document checks; do not create an artificial failing test for them.
+
 ## Verification before push and merge
 
 - Before every push, run existing tests, builds, and checks applicable to the change and available locally; fix failures before publishing.
