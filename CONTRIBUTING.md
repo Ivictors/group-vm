@@ -28,7 +28,9 @@ git branch -d chore/NN-description
 ```
 
 ## GitHub branch controls
-The target policy is to prohibit direct pushes to main and require a PR, applicable checks, and resolved conversations. These controls are not confirmed as active in the current private repository; verify the effective GitHub settings before relying on them. With a single maintainer, the author reviews the PR diff and evidence and records that review. This review is not independent, and authors cannot approve their own PRs.
+The public repository has an active [Protect main ruleset](https://github.com/Ivictors/group-vm/rules/25986333) for `main`. It requires a PR, the `foundation` check on an up-to-date branch, and resolved review conversations. It blocks force pushes and deletion and has no bypass actors. The required approval count is zero while there is one maintainer; the author reviews the PR diff and evidence and records that review. This review is not independent, and authors cannot approve their own PRs. Verify the effective GitHub rules before relying on this configuration, since repository settings can change.
+
+Use `area:<service-name>` labels for the eleven services in `docs/ARCHITECTURE.md`, plus `area:frontend`, `area:infrastructure`, and `area:governance`. The undated delivery milestones are Foundation, Commerce MVP, Intelligence MVP, and Launch readiness. Labels identify ownership; milestones group delivery goals, not implementation authorization.
 
 ## Verification before push and merge
 
