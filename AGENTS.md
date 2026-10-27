@@ -13,6 +13,7 @@ Follow security policies and explicit human instructions; the approved issue def
 ## Implementation
 - Follow the official documentation for the languages and frameworks in use.
 - Work only within the approved issue; propose a separate issue for new scope.
+- Use TDD as the standard for new or changed executable behavior, including bug fixes: RED → GREEN → REFACTOR. First write a meaningful test and observe it fail for the expected reason before changing production code. Then make the smallest change that passes the relevant tests. Refactor while keeping those tests passing; record the RED failure and later test results for review.
 - Do not import code/classes from another service or access another service's database.
 - Prefer HTTP contracts documented with OpenAPI or versioned JSON events with IDs and timestamps.
 - Use BigDecimal/decimal for all financial operations and idempotency where appropriate.
