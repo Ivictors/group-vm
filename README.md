@@ -33,6 +33,14 @@ Read the requirements in `docs/PRODUCT.md`, the decisions in `docs/ARCHITECTURE.
 Create one branch per issue in the project directory, as described in `CONTRIBUTING.md`.
 Implement and validate services incrementally. Current CI checks only foundation files.
 
+### Local PostgreSQL for catalog development
+
+From the repository root in PowerShell, run `& .\infra\postgres\provision-catalog.ps1`. This uses the committed `infra/postgres/compose.example`, starts only PostgreSQL 18.6 on `127.0.0.1:5433`, waits for health, and provisions the `catalog` database and non-superuser `catalog_app` role. It creates the ignored root `.env` and password files under `infra/postgres/secrets/` only if absent; it never replaces existing credentials. The ignored `infra/postgres/compose.yaml` is not used or changed.
+
+Run `docker compose -f infra/postgres/compose.example ps` to check health. Run `docker compose -f infra/postgres/compose.example down` to stop the container while retaining its named volume; do not use `down -v` when preserving local data. The provisioning command can be rerun after a stop or restart. The root `.env` supplies `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, and `SPRING_DATASOURCE_PASSWORD` for the future catalog service. Never commit or print these files or values.
+
+On this notebook, the healthy container used about 25 MiB in one `docker stats --no-stream` sample; this is an observation, not a memory limit. A busy port 5433, unavailable Docker daemon, missing image/network access, or an existing `.env` that disagrees with the catalog password file stops setup with an error. The script does not overwrite that local configuration or remove an existing database or volume. Catalog service code and its real connection test are tracked in issue #9.
+
 ## References
 - https://docs.spring.io/spring-boot/reference/
 - https://quarkus.io/guides/

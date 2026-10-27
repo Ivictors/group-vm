@@ -3,7 +3,7 @@
 - [x] Demonstrate effective protection of `main`; configure the ruleset, area labels, and milestones. Completed in issue #5 and PR #6.
 - [ ] Provision PostgreSQL with separate databases/credentials per service; introduce Kafka KRaft and Keycloak for integrations that require them.
   - [x] Document a valid local PostgreSQL 18.6 Compose example without provisioning credentials or a service database (issue #7).
-  - [ ] Provision local PostgreSQL and verify a separate catalog database, role, and persistence (issue #8).
+  - [x] Provision local PostgreSQL and verify a separate catalog database, role, and persistence (issue #8).
   - [ ] Add separate databases and credentials as later services are implemented.
   - [ ] Introduce Kafka KRaft when an approved event integration requires it (issue #11).
   - [ ] Introduce Keycloak when an approved identity integration requires it (issue #12).

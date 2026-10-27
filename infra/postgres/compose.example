@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_admin_password
     secrets:
       - postgres_admin_password
+      - catalog_db_password
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
@@ -24,6 +25,8 @@ services:
 secrets:
   postgres_admin_password:
     file: ./secrets/postgres_admin_password
+  catalog_db_password:
+    file: ./secrets/catalog_db_password
 
 volumes:
   postgres_data:
