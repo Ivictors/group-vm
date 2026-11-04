@@ -3,32 +3,36 @@
 ## Required workflow
 - Every change references a GitHub Issue with an objective, scope, out-of-scope items, dependencies, and verifiable criteria.
 - `docs/PRODUCT.md` and `docs/ARCHITECTURE.md` define behavior and responsibilities; consult the approved GitHub Issue for the objective, dependencies, and acceptance criteria.
-- Use one branch per issue in the project directory and a PR to `main`. Do not develop on `main`.
-- Branches: `feat/NN-description`, `fix/NN-description`, `chore/NN-description`.
+- Use one branch per issue in the project directory. Feature, fix, documentation, and chore PRs target `develop`; only an approved release PR promotes `develop` to `main`. Do not develop directly on `main` or `develop`.
+- Branches: `feature/NN-description`, `fix/NN-description`, `docs/NN-description`, `chore/NN-description`.
 - Commits: Conventional Commits, without secrets or generated artifacts.
 
 ```bash
 git fetch origin
 # With a clean directory and an up-to-date main branch, create the issue branch:
-git switch main
-git pull --ff-only origin main
-git switch -c chore/NN-description
+git switch develop
+git pull --ff-only origin develop
+git switch -c feature/NN-description
 # Implement and run applicable local tests/checks before pushing;
 # use the service's Maven Wrapper when available. Replace NN and description.
 git status --short
 git diff --check
 # Commit and PR require human approval.
-git push -u origin chore/NN-description
-gh pr create --web --base main --head chore/NN-description
+git push -u origin feature/NN-description
+gh pr create --web --base develop --head feature/NN-description
 # After merge and issue closure, once you confirm no work remains unmerged:
-git switch main
-git pull --ff-only origin main
-git branch -d chore/NN-description
+git switch develop
+git pull --ff-only origin develop
+git branch -d feature/NN-description
 # Check the GitHub setting before relying on automatic remote-branch deletion.
 ```
 
+## Release flow
+
+`main` contains only stable releases. After the MVP acceptance criteria, required checks, documented self-review, and rollback evidence are complete on `develop`, open a release PR from `develop` to `main`. Merge and deployment require separate explicit action by the maintainer. A second reviewer is not required while the project has one maintainer. Tag the resulting commit on `main` after the release is accepted.
+
 ## GitHub branch controls
-The public repository has an active [Protect main ruleset](https://github.com/Ivictors/group-vm/rules/25986333) for `main`. It requires a PR, the `foundation` check on an up-to-date branch, and resolved review conversations. It blocks force pushes and deletion and has no bypass actors. The required approval count is zero while there is one maintainer; the author reviews the PR diff and evidence and records that review. This review is not independent, and authors cannot approve their own PRs. Verify the effective GitHub rules before relying on this configuration, since repository settings can change.
+The public repository has an active [Protect main ruleset](https://github.com/Ivictors/group-vm/rules/25986333) for `main`. It requires a PR, the `foundation` check on an up-to-date branch, and resolved review conversations. `develop` must receive equivalent protection for issue PRs and be the only integration branch for the MVP. Both branches must block direct pushes and force pushes. Required approval count remains zero while there is one maintainer because GitHub does not allow the PR author to approve their own PR. The author must record a self-review covering scope, risks, acceptance criteria, tests, and rollback. Verify the effective GitHub rules before relying on this configuration, since repository settings can change.
 
 Use `area:<service-name>` labels for the eleven services in `docs/ARCHITECTURE.md`, plus `area:frontend`, `area:infrastructure`, and `area:governance`. The undated delivery milestones are Foundation, Commerce MVP, Intelligence MVP, and Launch readiness. Labels identify ownership; milestones group delivery goals, not implementation authorization.
 
@@ -58,7 +62,7 @@ Approved issue, clear dependencies, defined contract, testable acceptance criter
 - Authorization, validation, idempotency, failures, and observability reviewed where applicable.
 - Versioned OpenAPI/event schemas and README/operational documentation updated when the corresponding behavior changes.
 - PR includes risks, evidence, tests actually run, and a rollback plan when needed.
-- Author review recorded, conversations resolved, and merge authorized. Record completion in the issue.
+- Maintainer self-review recorded, conversations resolved, and merge authorized. A second reviewer is optional while there is one maintainer. Record completion in the issue.
 
 ## PR review
 Check service boundaries, data ownership, contract compatibility, migrations, replay behavior, retries, and partial failures.

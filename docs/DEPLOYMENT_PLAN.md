@@ -4,7 +4,7 @@
 
 The current ceiling is **R$ 100 per month for the entire operation**, including the server, prorated .br domain, external backup, email, and observability. Do not buy only a server that fits the ceiling while leaving recovery or critical components uncovered. A single machine with tested restoration is the initial tolerated setup; its failure may interrupt sales. High availability has neither been approved nor funded.
 
-Every production proposal must state: region and data residency, quote currency and exchange rate, taxes, shared or dedicated CPU, RAM, disk and I/O, IPv4, traffic/egress, snapshots and external backup, email, domain, monitoring, limits and variable costs, and the single maintainer's operational work. Record the total monthly and annual price, date, and source link. Measure actual processes before sizing; the platform vendor's minimums do not represent the needs of the ten MVP services and infrastructure.
+Every production proposal must state: region and data residency, quote currency and exchange rate, taxes, shared or dedicated CPU, RAM, disk and I/O, IPv4, traffic/egress, snapshots and external backup, email, domain, monitoring, limits and variable costs, and the single maintainer's operational work. Record the total monthly and annual price, date, and source link. Measure actual processes before sizing; the first commerce MVP has four business services and required external integrations, not the ten-service roadmap previously described.
 
 ## Angular frontend
 
@@ -35,7 +35,7 @@ An available static frontend does not prove checkout availability: the API, data
 
 No row is a total price or purchase proposal. Do not add amounts in different currencies without a current exchange rate; record the source and rate used once a configuration has been measured. If a required component has no price, the comparison has not shown that the setup fits the ceiling.
 
-For the purchase path, measure catalog, cart, customer, shipping, order, inventory, payment, notification, Kong, Keycloak, PostgreSQL, and Kafka running together. Intelligence remains in the MVP; measure the collector and intelligence within the same budget even if collection jobs can run on their own schedule. Do not assume a component needed for the first purchase, webhook, reservation expiration, or code delivery can be suspended without proving startup, processing, and recovery within the required time.
+For the purchase path, measure the four business services, their separate databases, the frontend, payment and shipping providers, email delivery, and the selected security/edge components running together. Intelligence is deferred from the first commerce release and is not part of the initial sizing gate. Do not assume a component needed for the first purchase, webhook, reservation expiration, or code delivery can be suspended without proving startup, processing, and recovery within the required time.
 
 ## Data, domain, and operations
 
@@ -51,7 +51,7 @@ Current CI checks only foundation files; `.github/workflows/release.yml` intenti
 
 ## Gate before real orders
 
-1. Measure the complete Commerce and Intelligence MVP within one operating budget. Record actual resource use and availability after inactivity, including startup, purchase, webhook, reservation expiration, and email code delivery.
+1. Measure the complete commerce MVP within one operating budget. Record actual resource use and availability after inactivity, including startup, purchase, webhook, reservation expiration, and email code delivery.
 2. Demonstrate the buyer and operator flows with the required services: confirmed shipping, complete reservation before payment, authenticated webhook, idempotent order and inventory changes, failure compensation and reconciliation, order lookup, fulfillment, and after-sales requests. Define cancellation, return, refund, and personal-data retention policies before real orders.
 3. Demonstrate an external, encrypted backup and a tested restoration that preserves consistency across orders, payments, inventory, and events. Record achieved recovery objectives and a tested rollback procedure.
 4. Verify authorization, secret isolation, HTTPS, monitoring and alerts, and operational response to failures. Record the evidence and remaining limitations; an available frontend or passing CI alone does not prove that the purchase flow is available.

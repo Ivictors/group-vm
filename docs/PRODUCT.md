@@ -1,7 +1,7 @@
 # Product, requirements, and acceptance criteria
 
 ## Goal and users
-Operate an own-store ecommerce business for physical products and support sourcing/pricing with legitimate market data. Commerce and Intelligence belong to the same MVP. Users: guest buyer, catalog/inventory and order operators, opportunity analyst, and administrator. A buyer account is not required.
+Operate an own-store ecommerce business for physical products. The first MVP proves a complete simple purchase journey; sourcing and pricing intelligence follow after commerce is validated. Users: guest buyer, catalog/inventory and order operators, and administrator. A buyer account is not required.
 
 ## Commerce MVP
 RF01 An admin creates and activates products with a SKU, traceable price, and attributes needed for shipping quotes. Exact variants and attributes will be defined in F03a/C01.
@@ -16,9 +16,9 @@ RF05 A confirmed order consumes reservations exactly once; failure or expiration
 
 RF06 An admin views orders and transitions and records dispatch and a tracking code. A guest views order status without an account using a temporary code sent to the order email address for each access.
 
-RF07 The collector imports data from an authorized or fictional source and normalizes products and prices.
+RF07 The collector imports data from an authorized or fictional source and normalizes products and prices. This is deferred until after the commerce MVP.
 
-RF08 Intelligence calculates price references, risk, and margin; it does not buy or publish products automatically.
+RF08 Intelligence calculates price references, risk, and margin; it does not buy or publish products automatically. This is deferred until after the commerce MVP.
 
 RF09 The gateway exposes only the necessary public endpoints and protects administrative endpoints; each service also enforces authorization. Public guest flows do not require login.
 
@@ -28,11 +28,11 @@ RF11 The guest cart is stored on the server and can be resumed in the same brows
 
 RF12 Before reservation, price or availability changes since an item was added to the cart are shown and require explicit confirmation. Unavailable quantities must be adjusted; changed values are not silently accepted.
 
-RF13 The store configures supported CEP ranges. A guest provides a name, email, phone number, and address. `customer-service` owns these data without requiring an account.
+RF13 The store configures supported CEP ranges. A guest provides a name, email, phone number, and address. The initial `commerce-service` owns the order snapshot; a separate customer service is deferred.
 
-RF14 `shipping-service` obtains quotes from two configured shipping providers. If the first fails or does not serve the CEP, it automatically tries the second. The buyer chooses an option after seeing its price and delivery time; confirmation is blocked without a valid quote. An expired or changed quote is requested again before final confirmation and requires the buyer to confirm again.
+RF14 The initial `commerce-service` obtains quotes from configured shipping providers through adapters. If the first fails or does not serve the CEP, it may try the second according to the approved shipping contract. The buyer chooses an option after seeing its price and delivery time; confirmation is blocked without a valid quote. A separate shipping service is deferred.
 
-RF15 `notification-service` delivers the temporary lookup code by email. Requesting or verifying the code must not reveal whether an email address has orders; attempts and sends are rate limited. Exact validity periods and limits belong in the contracts and implementation issue.
+RF15 The initial `commerce-service` uses a notification adapter to deliver the temporary lookup code by email. Requesting or verifying the code must not reveal whether an email address has orders; attempts and sends are rate limited. A separate notification service is deferred.
 
 RF16 From the order, the buyer requests cancellation or a return; an admin reviews the request and records a decision and history. The request does not automatically cancel the order or issue a refund. Eligibility, deadlines, and refund execution must be defined before processing real orders.
 
@@ -51,8 +51,8 @@ Optional login and reusable buyer profiles, AI, Telegram, multiple payment provi
 - After-sales: the buyer requests cancellation or a return from the order; an admin records the review and decision without an automatic refund.
 - Frontend: the buyer completes the storefront, cart, shipping, checkout, and order lookup journey in Angular; an authorized operator uses the minimal admin view.
 
-## Intelligence E2E acceptance
-An authorized source produces normalized and deduplicated data, a calculated opportunity, and an administrative lookup; an unauthorized source does not run. Intelligence does not automatically change the catalog, prices, inventory, or orders.
+## Deferred intelligence acceptance
+An authorized source produces normalized and deduplicated data, a calculated opportunity, and an administrative lookup; an unauthorized source does not run. Intelligence does not automatically change the catalog, prices, inventory, or orders. These checks are outside the first commerce MVP.
 
 ## Nonfunctional requirements
 Versioned API; decimal monetary values; financial and inventory idempotency; observability and health checks; data isolation; minimization, protection, and retention of personal data; no versioned secrets; limits on code attempts; failure monitoring; backup and recovery before production. An implemented MVP does not authorize real orders: complete operation, availability after inactivity, restoration, security, monitoring, and rollback must be demonstrated within an approved budget. See `docs/DEPLOYMENT_PLAN.md`.

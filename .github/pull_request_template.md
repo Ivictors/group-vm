@@ -1,6 +1,10 @@
 ## Issue
 Closes #
 
+## Integration target
+- [ ] This is a task PR targeting `develop`
+- [ ] This is an approved release PR from `develop` to `main`
+
 ## Changes and scope
 
 ## Contracts and database
@@ -22,8 +26,8 @@ Closes #
 - README, contracts, and operational documentation updated when the corresponding behavior changed:
 
 ## DoD
-- [ ] Dedicated issue branch
+- [ ] Dedicated issue branch based on `develop` (or release PR from `develop`)
 - [ ] Acceptance criteria met
 - [ ] Applicable CI ran and passed; no required check is only `skipped`/`neutral`
-- [ ] Author review, risks, and acceptance criteria recorded (single-maintainer workflow)
+- [ ] Maintainer self-review, risks, acceptance criteria, tests, and rollback recorded (single-maintainer workflow)
 - [ ] README, contracts, and operational documentation reviewed when needed
