@@ -12,7 +12,7 @@ docs/commands/
 # Environment and secrets
 .env
 .env.*
-!.env.example
+.env.example
 /infra/postgres/compose.yaml
 **/application-local.yml
 **/application-local.yaml
@@ -34,3 +34,7 @@ logs/
 *.hprof
 *.heapdump
 .nyc_output/
+
+# Local planning drafts
+/docs/.specs/
+/docs/contracts/
