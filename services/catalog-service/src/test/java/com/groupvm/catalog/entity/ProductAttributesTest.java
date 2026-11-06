@@ -1,6 +1,6 @@
-package com.groupvm.catalog.domain;
+package com.groupvm.catalog.entity;
 
-import com.groupvm.catalog.domain.exception.ProductValidationException;
+import com.groupvm.catalog.exception.ProductValidationException;
 
 import org.junit.jupiter.api.Test;
 

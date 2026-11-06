@@ -1,4 +1,4 @@
-package com.groupvm.catalog.domain;
+package com.groupvm.catalog.entity;
 
 public enum ProductStatus {
     DRAFT,

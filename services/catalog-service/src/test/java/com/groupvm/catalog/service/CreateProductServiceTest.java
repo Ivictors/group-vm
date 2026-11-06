@@ -1,9 +1,9 @@
-package com.groupvm.catalog.application;
+package com.groupvm.catalog.service;
 
-import com.groupvm.catalog.domain.Product;
-import com.groupvm.catalog.domain.ProductAttributes;
-import com.groupvm.catalog.domain.ProductStatus;
-import com.groupvm.catalog.application.port.out.ProductRepository;
+import com.groupvm.catalog.entity.Product;
+import com.groupvm.catalog.entity.ProductAttributes;
+import com.groupvm.catalog.entity.ProductStatus;
+import com.groupvm.catalog.repository.ProductRepository;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;

@@ -1,6 +1,6 @@
-package com.groupvm.catalog.application;
+package com.groupvm.catalog.service;
 
-import com.groupvm.catalog.domain.ProductAttributes;
+import com.groupvm.catalog.entity.ProductAttributes;
 
 import java.math.BigDecimal;
 

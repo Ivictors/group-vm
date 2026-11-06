@@ -1,4 +1,4 @@
-package com.groupvm.catalog.domain.exception;
+package com.groupvm.catalog.exception;
 
 public class DuplicateSkuException extends RuntimeException {
     public DuplicateSkuException(String sku) {

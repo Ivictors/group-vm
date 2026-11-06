@@ -1,6 +1,6 @@
-package com.groupvm.catalog.application.port.out;
+package com.groupvm.catalog.repository;
 
-import com.groupvm.catalog.domain.Product;
+import com.groupvm.catalog.entity.Product;
 
 public interface ProductRepository {
     boolean existsBySkuIgnoreCase(String sku);
