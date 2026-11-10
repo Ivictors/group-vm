@@ -12,7 +12,9 @@ docs/commands/
 # Environment and secrets
 .env
 .env.*
-!.env.example
+**/.env.example
+docs/.specs/
+docs/contracts/
 /infra/postgres/compose.yaml
 **/application-local.yml
 **/application-local.yaml
