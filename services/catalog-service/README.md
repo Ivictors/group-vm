@@ -7,22 +7,26 @@ The integration profile uses PostgreSQL through Docker. It does not install Post
 Start an isolated database using the local `postgres:18.6` image:
 
 ```powershell
+$env:POSTGRES_PASSWORD = Read-Host "Choose a password for this disposable database"
+$loopbackAddress = [System.Net.IPAddress]::Loopback.ToString()
 docker run --rm --name group-vm-catalog-postgres `
   -e POSTGRES_DB=catalog_integration `
   -e POSTGRES_USER=catalog_app `
-  -e POSTGRES_PASSWORD=catalog_test_password `
-  -p 127.0.0.1:55432:5432 `
+  -e POSTGRES_PASSWORD `
+  -p "${loopbackAddress}:55432:5432" `
   postgres:18.6
 ```
 
-In another terminal, run:
+In another terminal, enter the same password and run:
 
 ```powershell
-$env:CATALOG_DB_URL = "jdbc:postgresql://127.0.0.1:55432/catalog_integration"
+$env:CATALOG_DB_URL = "jdbc:postgresql://localhost:55432/catalog_integration"
 $env:CATALOG_DB_USERNAME = "catalog_app"
-$env:CATALOG_DB_PASSWORD = "catalog_test_password"
+$env:CATALOG_DB_PASSWORD = Read-Host "Enter the same local database password"
 mvn test -Pintegration
 ```
+
+Choose a password only for this disposable local database. The commands read it at runtime; do not add the value to this file or commit it. The port is bound to the local loopback interface, so the database is not published on external interfaces.
 
 The profile applies Flyway migrations and runs the HTTP CRUD scenarios against this disposable database. Run the command again before stopping the container to verify an already migrated database. The tests also migrate an isolated schema from V1 to V2 with an existing product, verify the new constraint, and check that a failed V2 migration leaves V1 data intact. Stop the container with `Ctrl+C` or `docker rm -f group-vm-catalog-postgres`.
 
