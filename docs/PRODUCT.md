@@ -4,7 +4,7 @@
 Operate an own-store ecommerce business for physical products. The first MVP proves a complete simple purchase journey; sourcing and pricing intelligence follow after commerce is validated. Users: guest buyer, catalog/inventory and order operators, and administrator. A buyer account is not required.
 
 ## Commerce MVP
-RF01 An admin creates and activates products with a SKU, traceable price, and attributes needed for shipping quotes. Exact variants and attributes will be defined in F03a/C01.
+RF01 An admin creates and activates products with a SKU, traceable price, and attributes needed for shipping quotes. The target catalog contract is defined in [catalog-v1.yaml](../services/catalog-service/openapi/catalog-v1.yaml); implementation is tracked in issues #36–#39.
 
 RF02 Inventory exposes availability and reserves quantities per item with a TTL, idempotency, and concurrency protection. Adding or keeping products in the cart does not reserve inventory.
 
@@ -36,6 +36,13 @@ RF15 The initial `commerce-service` uses a notification adapter to deliver the t
 
 RF16 From the order, the buyer requests cancellation or a return; an admin reviews the request and records a decision and history. The request does not automatically cancel the order or issue a refund. Eligibility, deadlines, and refund execution must be defined before processing real orders.
 
+## Catalog MVP contract (planned)
+An administrator creates a product in `DRAFT`, publishes a valid draft as `ACTIVE`, and may archive a draft or active product without deleting it. Archived products cannot be edited or reactivated in the first MVP. Only active products appear in public catalog reads; administrative reads include every state.
+
+SKU and name are trimmed and nonblank. SKU is immutable, unique regardless of case across all states, and remains reserved after archival. Price is positive BRL with exactly two decimal places. Every new product requires positive whole-number grams and positive length, width, and height in centimeters. Existing products with unknown shipping data remain visible to administrators without fabricated values. Existing unarchived products become `DRAFT`; existing archived products remain `ARCHIVED`. Incomplete drafts cannot be activated. Public products always have complete shipping data. There are no variants or categories in this first contract.
+
+Price changes are auditable only after the security and history issues are implemented. New records use the validated administrator token subject as actor; existing products without an audit trail keep their current price without a fabricated historical actor. The [OpenAPI contract](../services/catalog-service/openapi/catalog-v1.yaml) specifies the target HTTP shape, not the current deployed behavior.
+
 ## Outside the MVP
 Optional login and reusable buyer profiles, AI, Telegram, multiple payment providers, automatic publication of third-party listings, advanced administration, and multi-region high availability. Minimal transactional email belongs to the MVP; campaigns and additional notifications come later.
 
@@ -58,7 +65,7 @@ An authorized source produces normalized and deduplicated data, a calculated opp
 Versioned API; decimal monetary values; financial and inventory idempotency; observability and health checks; data isolation; minimization, protection, and retention of personal data; no versioned secrets; limits on code attempts; failure monitoring; backup and recovery before production. An implemented MVP does not authorize real orders: complete operation, availability after inactivity, restoration, security, monitoring, and rollback must be demonstrated within an approved budget. See `docs/DEPLOYMENT_PLAN.md`.
 
 ## Open decisions for contracts and operations
-F03a and the implementation issues will define the HTTP format, reservation and quote TTLs, selection of two shipping providers, code limits and validity, personal-data retention, email failures, and cancellation/return/refund policy. These details must not weaken the requirement for a complete reservation before payment or authorize a charge without confirmed shipping.
+The catalog HTTP format is specified by issue #35. Other implementation issues will define reservation and quote TTLs, selection of two shipping providers, code limits and validity, personal-data retention, email failures, and cancellation/return/refund policy. These details must not weaken the requirement for a complete reservation before payment or authorize a charge without confirmed shipping.
 
 ## Metrics
 Completed orders; webhook errors; checkout duration; expired reservations and compensations; inventory inconsistencies; quote availability and discrepancies; code delivery; after-sales requests; collection throughput/errors; accuracy of market references; operating cost per service.

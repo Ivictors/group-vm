@@ -61,6 +61,6 @@ catalog inventory payment
 4. `payment-service` sandbox adapter and webhook contract.
 5. Security, observability, failure recovery, and end-to-end purchase evidence.
 
-The corresponding backlog is catalog issues #21–#26, inventory issue #27, commerce issue #28, and payment issue #29. Issue #10 supplies per-service CI; #12 supplies the identity controls required before administrative release. Issue #11 remains deferred until an event flow is approved.
+The current catalog backlog is #34–#42: database compatibility, the [target catalog contract](../services/catalog-service/openapi/catalog-v1.yaml), lifecycle, public reads, administrative security, price audit, CI, observability, and readiness. Issue #38 supplies the identity controls required before administrative exposure; #40 supplies the catalog CI gate. Inventory, commerce, and payment implementation will receive their own issues when catalog readiness is demonstrated. Kafka remains deferred until an event flow is approved.
 
 Every service keeps its own database and tests. Cross-service tests use HTTP contracts or test doubles; they do not import another service's entities or repositories.
