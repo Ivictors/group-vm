@@ -68,7 +68,9 @@ Approved issue, clear dependencies, defined contract, testable acceptance criter
 Check service boundaries, data ownership, contract compatibility, migrations, replay behavior, retries, and partial failures.
 
 ## CI policy
-CI must check changed services individually, using Testcontainers when needed, and run distributed integrations that are not feasible locally. JaCoCo, Spotless, Gitleaks, static analysis, tests, and dependency/image scans are controls to implement through issues; the current workflow checks only the foundation. Deploy only immutable images. No automatic production rollout without approval.
+CI must check changed services individually and run distributed integrations that are not feasible locally. The `catalog` job runs on every PR so its check remains available as a required check. It runs catalog unit tests, PostgreSQL integration tests twice against the same database, and a Java 21 build. Run the equivalent commands from `services/catalog-service` with `mvn test`, `mvn test -Pintegration` twice against an isolated PostgreSQL 18.6 database, and `mvn package -DskipTests`; the package step skips only the tests already run. See the service README for connection variables.
+
+The `foundation` job does not validate Java. The `catalog` check must be configured as required for PRs into `develop` before relying on it as a merge gate; this workflow alone cannot enforce branch protection. JaCoCo, Spotless, Gitleaks, static analysis, and dependency/image scans remain for later issues. Deploy only immutable images. No automatic production rollout without approval.
 
 ## Independence and daily development
 - Each service has its own build, database, code, and tests. HTTP or event mocks are allowed; tests do not import another service's entities, repositories, or migrations.
