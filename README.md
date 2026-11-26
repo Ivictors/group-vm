@@ -22,7 +22,7 @@ After purchase, the guest looks up the order using a temporary code sent by emai
 - Kubernetes/Helm as the target deployment architecture. Development does not require a local cluster; Kafka/Kong/Keycloak are started only when a task requires them.
 - `docs/DEPLOYMENT_PLAN.md` compares hosting, costs, and operations without selecting a provider or authorizing deployment. With the current R$ 100/month ceiling for the entire operation, real orders remain postponed until a complete, available, and recoverable solution is demonstrated within the approved budget.
 - `docs/MVP_SCOPE.md` defines the essential service boundary and deferred extraction candidates.
-- Current CI checks only the foundation. Full integration tests and JaCoCo, Spotless, Gitleaks, and static-analysis gates remain to be implemented in the relevant issues.
+- CI checks foundation files and runs catalog unit tests, PostgreSQL integration tests, and a Java 21 build. JaCoCo, Spotless, Gitleaks, and static-analysis gates remain for later issues.
 
 ## Governance files
 - `AGENTS.md`: AI agent working rules and blockers.
@@ -34,7 +34,7 @@ After purchase, the guest looks up the order using a temporary code sent by emai
 
 ## Getting started
 Read the requirements in `docs/PRODUCT.md`, the decisions in `docs/ARCHITECTURE.md`, and the contribution workflow in `CONTRIBUTING.md`.
-Create one branch per issue from `develop`, as described in `CONTRIBUTING.md`. Merge task PRs into `develop`; promote the validated MVP to `main` only through an approved release PR. Implement and validate services incrementally. Current CI checks only foundation files.
+Create one branch per issue from `develop`, as described in `CONTRIBUTING.md`. Merge task PRs into `develop`; promote the validated MVP to `main` only through an approved release PR. Implement and validate services incrementally. The `catalog` CI job checks the catalog service on PRs; see its README for local commands.
 
 ## References
 - https://docs.spring.io/spring-boot/reference/

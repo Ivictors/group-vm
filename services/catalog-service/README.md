@@ -15,7 +15,7 @@ Requests flow through `ProductResource` → `ProductService` → `ProductReposit
 
 ## Tests
 
-From this directory, run `mvn test` for unit and resource tests. For integration tests, start an isolated `postgres:18.6` container bound to the local loopback interface, set `CATALOG_DB_URL`, `CATALOG_DB_USERNAME`, and `CATALOG_DB_PASSWORD` in your terminal, then run `mvn test -Pintegration`. Run it again against the same container to check an already migrated database. The integration suite uses temporary schemas for migration scenarios and deletes them afterward. Keep credentials local; never connect these tests to a shared database.
+From this directory, run `mvn test` for unit and resource tests. For integration tests, start an isolated `postgres:18.6` container bound to the local loopback interface, set `CATALOG_DB_URL`, `CATALOG_DB_USERNAME`, and `CATALOG_DB_PASSWORD` in your terminal, then run `mvn test -Pintegration` twice against the same container to check a fresh and an already migrated database. Finish with `mvn package -DskipTests`; the tests have already run. The integration suite uses temporary schemas for migration scenarios and deletes them afterward. Keep credentials local; never connect these tests to a shared database. CI runs these commands with Java 21 and uploads Surefire reports; check the `catalog` job on PRs to `develop`.
 
 The administrative HTTP controller is enabled only with the `local`, `test`, or `integration` Spring profile until service-side authorization is implemented in issue #38. Do not expose one of these profiles outside an isolated development or test environment. Public product reads are tracked separately in issue #37.
 
