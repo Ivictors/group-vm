@@ -6,11 +6,11 @@ import com.groupvm.catalog.domain.ProductStatus;
 import java.time.Instant;
 import java.util.UUID;
 
-public record ProductSummaryResponse(UUID id, String sku, String name, ProductResponse.Price price,
+public record ProductSummaryResponse(UUID id, String sku, String name, PriceResponse price,
                                      ProductStatus status, Instant createdAt, Instant updatedAt) {
     public static ProductSummaryResponse from(Product product) {
         return new ProductSummaryResponse(product.getId(), product.getSku(), product.getName(),
-                new ProductResponse.Price("BRL", product.getPrice().toPlainString()),
+                PriceResponse.from(product),
                 product.getStatus(), product.getCreatedAt(), product.getUpdatedAt());
     }
 }

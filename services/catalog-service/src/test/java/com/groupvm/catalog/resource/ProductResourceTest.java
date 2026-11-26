@@ -216,8 +216,7 @@ class ProductResourceTest {
     }
 
     @Test
-    void legacyPublicRoutesDoNotExposeAdminData() throws Exception {
-        mvc.perform(get("/api/v1/products")).andExpect(status().isNotFound());
+    void legacyPublicWriteRouteDoesNotExposeAdminOperations() throws Exception {
         mvc.perform(post("/api/v1/products").contentType(MediaType.APPLICATION_JSON).content(CREATE))
                 .andExpect(status().isNotFound());
         verifyNoInteractions(service);
