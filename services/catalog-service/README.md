@@ -1,6 +1,6 @@
 # Catalog service
 
-Spring Boot service for administrative product drafts, activation, updates, and archiving. It owns its product data in PostgreSQL.
+Spring Boot service for administrative product drafts, activation, updates, and archiving, plus public reads of active products. It owns its product data in PostgreSQL.
 
 ## Architecture
 
@@ -11,13 +11,15 @@ Spring Boot service for administrative product drafts, activation, updates, and 
 | `domain` | `Product` entity and its rules |
 | `infra` | Spring Data JPA repository |
 
-Requests flow through `ProductResource` → `ProductService` → `ProductRepository` → PostgreSQL. Flyway manages the database schema.
+Requests flow through an HTTP resource, application service, and repository to PostgreSQL. Flyway manages the database schema.
+
+Public `GET /api/v1/products` and `GET /api/v1/products/{productId}` are available in all profiles. PostgreSQL filters them to `ACTIVE` products; unknown, draft, and archived IDs return the same 404 response. The list uses zero-based `page` (default 0) and `size` (default 20, maximum 100), ordered by `createdAt` descending and then `id` descending. List items contain only ID, name, and price; detail also contains description and shipping measurements. The OpenAPI file is the response contract.
 
 ## Tests
 
 From this directory, run `mvn test` for unit and resource tests. For integration tests, start an isolated `postgres:18.6` container bound to the local loopback interface, set `CATALOG_DB_URL`, `CATALOG_DB_USERNAME`, and `CATALOG_DB_PASSWORD` in your terminal, then run `mvn test -Pintegration` twice against the same container to check a fresh and an already migrated database. Finish with `mvn package -DskipTests`; the tests have already run. The integration suite uses temporary schemas for migration scenarios and deletes them afterward. Keep credentials local; never connect these tests to a shared database. CI runs these commands with Java 21 and uploads Surefire reports; check the `catalog` job on PRs to `develop`.
 
-The administrative HTTP controller is enabled only with the `local`, `test`, or `integration` Spring profile until service-side authorization is implemented in issue #38. Do not expose one of these profiles outside an isolated development or test environment. Public product reads are tracked separately in issue #37.
+The administrative HTTP controller is enabled only with the `local`, `test`, or `integration` Spring profile until service-side authorization is implemented in issue #38. Do not expose one of these profiles outside an isolated development or test environment.
 
 ## Migrations
 

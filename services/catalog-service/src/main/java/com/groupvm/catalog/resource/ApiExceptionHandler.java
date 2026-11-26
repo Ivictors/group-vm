@@ -23,7 +23,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(ProductNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     ProblemDetail notFound(ProductNotFoundException exception) {
-        return problem(HttpStatus.NOT_FOUND, "Product not found", exception.getMessage(), null);
+        return problem(HttpStatus.NOT_FOUND, "Product not found", "Product not found", null);
     }
 
     @ExceptionHandler({InvalidProductRequestException.class, InvalidProductException.class,
