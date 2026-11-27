@@ -72,6 +72,8 @@ CI must check changed services individually and run distributed integrations tha
 
 The `foundation` job does not validate Java. The `catalog` check must be configured as required for PRs into `develop` before relying on it as a merge gate; this workflow alone cannot enforce branch protection. JaCoCo, Spotless, Gitleaks, static analysis, and dependency/image scans remain for later issues. Deploy only immutable images. No automatic production rollout without approval.
 
+The `frontend` job runs on every PR with Node 24.18.0. From `frontend/`, run `npm ci`, `npm test -- --watch=false`, and `npm run build` for equivalent local checks. Test and build failures fail the job, with details in the GitHub Actions logs. The job does not run a real browser-to-API end-to-end test. Require the `frontend` check in the `develop` ruleset only after a successful PR run and separate maintainer approval; the workflow alone cannot enforce this gate.
+
 ## Independence and daily development
 - Each service has its own build, database, code, and tests. HTTP or event mocks are allowed; tests do not import another service's entities, repositories, or migrations.
 - Run only the services and infrastructure required by the task. Kafka, Kong, Keycloak, and Kubernetes need not stay running on the notebook.
