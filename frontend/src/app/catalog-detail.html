@@ -1,0 +1,22 @@
+<a routerLink="/">Voltar aos produtos</a>
+@if (state() === 'loading') {
+  <p role="status">Carregando produto...</p>
+} @else if (state() === 'missing') {
+  <h1>Produto não encontrado</h1>
+} @else if (state() === 'error') {
+  <p role="alert">Não foi possível carregar o produto.</p>
+  <button class="retry" (click)="load()">Tentar novamente</button>
+} @else if (product(); as item) {
+  <article>
+    <h1>{{ item.name }}</h1>
+    <p class="price">{{ item.price.amount | brlPrice }}</p>
+    @if (item.description) { <p>{{ item.description }}</p> }
+    <h2>Medidas para entrega</h2>
+    <dl>
+      <dt>Peso</dt><dd>{{ item.weightGrams.toLocaleString('pt-BR') }} g</dd>
+      <dt>Comprimento</dt><dd>{{ item.lengthCm }} cm</dd>
+      <dt>Largura</dt><dd>{{ item.widthCm }} cm</dd>
+      <dt>Altura</dt><dd>{{ item.heightCm }} cm</dd>
+    </dl>
+  </article>
+}

@@ -36,6 +36,8 @@ After purchase, the guest looks up the order using a temporary code sent by emai
 Read the requirements in `docs/PRODUCT.md`, the decisions in `docs/ARCHITECTURE.md`, and the contribution workflow in `CONTRIBUTING.md`.
 Create one branch per issue from `develop`, as described in `CONTRIBUTING.md`. Merge task PRs into `develop`; promote the validated MVP to `main` only through an approved release PR. Implement and validate services incrementally. The `catalog` CI job checks the catalog service on PRs; see its README for local commands.
 
+The public Angular catalog is in `frontend/`. With the catalog API listening on its default `localhost:8081`, run `npm ci` and `npm start` there. The development server forwards `/api` to that API; `npm test -- --watch=false` runs component and simulated HTTP tests, and `npm run build` creates the production bundle. The API base URL is set in `frontend/src/environments/environment.ts` for development and `environment.production.ts` for production; both default to same-origin requests, so the production edge must route `/api/v1/products` to the catalog service. These browser settings contain no credentials. An end-to-end check against a running catalog API remains part of catalog readiness.
+
 ## References
 - https://docs.spring.io/spring-boot/reference/
 - https://quarkus.io/guides/
