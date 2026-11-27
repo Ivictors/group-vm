@@ -41,7 +41,7 @@ An administrator creates a product in `DRAFT`, publishes a valid draft as `ACTIV
 
 SKU and name are trimmed and nonblank. SKU is immutable, unique regardless of case across all states, and remains reserved after archival. Price is positive BRL with exactly two decimal places. Every new product requires positive whole-number grams and positive length, width, and height in centimeters. Existing products with unknown shipping data remain visible to administrators without fabricated values. Existing unarchived products become `DRAFT`; existing archived products remain `ARCHIVED`. Incomplete drafts cannot be activated. Public products always have complete shipping data. There are no variants or categories in this first contract.
 
-Price changes are auditable only after the security and history issues are implemented. New records use the validated administrator token subject as actor; existing products without an audit trail keep their current price without a fabricated historical actor. The [OpenAPI contract](../services/catalog-service/openapi/catalog-v1.yaml) specifies the target HTTP shape, not the current deployed behavior.
+Price changes are audited using the validated administrator token subject as actor. Existing products without an audit trail keep their current price without a fabricated historical actor. The [OpenAPI contract](../services/catalog-service/openapi/catalog-v1.yaml) specifies the HTTP shape.
 
 ## Outside the MVP
 Optional login and reusable buyer profiles, AI, Telegram, multiple payment providers, automatic publication of third-party listings, advanced administration, and multi-region high availability. Minimal transactional email belongs to the MVP; campaigns and additional notifications come later.

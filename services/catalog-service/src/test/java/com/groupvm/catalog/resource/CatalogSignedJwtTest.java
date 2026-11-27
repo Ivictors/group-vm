@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -85,7 +86,8 @@ class CatalogSignedJwtTest {
 
     @Test
     void signedAdministratorCanCreateProductWithValidatedSubject() throws Exception {
-        when(adminService.create(any())).thenReturn(new Product("CHAIR-01", "Chair", null,
+        when(adminService.create(any(), org.mockito.ArgumentMatchers.eq("test-operator")))
+                .thenReturn(new Product("CHAIR-01", "Chair", null,
                 new BigDecimal("129.90"), 4500, BigDecimal.valueOf(55),
                 BigDecimal.valueOf(50), BigDecimal.valueOf(90)));
         String bearer = token(KEY, ISSUER, "catalog-service", Instant.now().plusSeconds(300),
@@ -99,6 +101,25 @@ class CatalogSignedJwtTest {
                 .andExpect(status().isCreated())
                 .andExpect(authenticated().withUsername("test-operator"))
                 .andExpect(jsonPath("$.status").value("DRAFT"));
+        verify(adminService).create(any(), org.mockito.ArgumentMatchers.eq("test-operator"));
+    }
+
+    @Test
+    void acceptsLongValidatedSubjectWithoutTruncation() throws Exception {
+        String subject = "operator-" + "a".repeat(300);
+        when(adminService.create(any(), org.mockito.ArgumentMatchers.eq(subject)))
+                .thenReturn(new Product("CHAIR-02", "Chair", null, new BigDecimal("129.90"),
+                        4500, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE));
+        mvc.perform(post(ADMIN).header("Authorization", "Bearer " + token(KEY, ISSUER,
+                        "catalog-service", Instant.now().plusSeconds(300), Instant.now().minusSeconds(10),
+                        List.of("catalog_admin"), subject))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""
+                        {"sku":"CHAIR-02","name":"Chair","price":{"currency":"BRL","amount":"129.90"},
+                         "weightGrams":4500,"lengthCm":1,"widthCm":1,"heightCm":1}
+                        """))
+                .andExpect(status().isCreated());
+        verify(adminService).create(any(), org.mockito.ArgumentMatchers.eq(subject));
     }
 
     @Test

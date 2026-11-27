@@ -8,8 +8,8 @@ Spring Boot service for administrative product drafts, activation, updates, and 
 | --- | --- |
 | `resource` | HTTP endpoints, request/response DTOs, and error responses |
 | `application` | Product use cases and business flow |
-| `domain` | `Product` entity and its rules |
-| `infra` | Spring Data JPA repository |
+| `domain` | `Product` and immutable `PriceHistory` records |
+| `infra` | Spring Data JPA repositories |
 
 Requests flow through an HTTP resource, application service, and repository to PostgreSQL. Flyway manages the database schema.
 
@@ -21,7 +21,7 @@ From this directory, run `mvn test` for unit and resource tests. For integration
 
 Set `CATALOG_JWT_ISSUER_URI` to the Keycloak realm issuer before starting the service. Startup fails without it. The service verifies JWT signature, issuer, audience `catalog-service`, expiry, not-before time, and a nonblank subject. Keycloak must put the `catalog_admin` client role in `resource_access.catalog-service.roles` and include `catalog-service` in the access token audience. If issuer discovery is unavailable at startup, an operator may set `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI` to that realm's JWK endpoint; issuer validation still applies. Do not commit tokens, credentials, or environment-specific addresses.
 
-Only anonymous `GET /api/v1/products` and `GET /api/v1/products/{productId}` are allowed. Administrative routes require a valid token with `catalog_admin`; other routes are denied. Missing or invalid tokens return 401, and a valid token without permission returns 403. The validated token subject is available as the authenticated principal for the price audit in issue #39. Local tests use generated keys and a loopback JWK server; they do not need a running Keycloak instance.
+Only anonymous `GET /api/v1/products` and `GET /api/v1/products/{productId}` are allowed. Administrative routes require a valid token with `catalog_admin`; other routes are denied. Missing or invalid tokens return 401, and a valid token without permission returns 403. Product creation and price changes record the validated token subject as the actor. Client-supplied actor fields are rejected. Administrative product responses include price history, ordered oldest first; public responses do not expose it. Local tests use generated keys and a loopback JWK server; they do not need a running Keycloak instance.
 
 ## Migrations
 
@@ -44,3 +44,5 @@ Resolve collisions through an approved data correction before deployment. V3 tri
 Java 21 uses `String.strip()` for incoming SKUs. PostgreSQL's POSIX whitespace class used by V3 does not trim U+001C through U+001F, so V3 rejects any legacy SKU containing those control characters instead of keeping an inconsistent value; the database constraint also rejects new rows containing them. Check for them before deployment with `SELECT id FROM products WHERE position(chr(28) IN sku) > 0 OR position(chr(29) IN sku) > 0 OR position(chr(30) IN sku) > 0 OR position(chr(31) IN sku) > 0;`. Recheck the normalization behavior when changing Java or PostgreSQL versions.
 
 After a successful V3 migration, the older application is incompatible because the `archived` column has been removed. Prefer a reviewed forward corrective migration. Restoring the pre-V3 backup and the older application requires a coordinated recovery window, and writes after that backup need reconciliation. Test backup restoration before production use.
+
+V4 adds an append-only price history table. It deliberately does not backfill old products: their existing price remains intact, and their history starts with the first authenticated price change. No historical actor is invented. A database trigger rejects updates and deletes of recorded entries. Product and history writes share one PostgreSQL transaction; a failed write or optimistic version conflict rolls both back. Before deployment, take a verified backup and retain the V3 application image. To recover from a failed V4 deployment, prefer a reviewed forward migration; restoring the pre-V4 backup requires a coordinated application rollback and reconciliation of later writes.
