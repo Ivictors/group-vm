@@ -45,17 +45,9 @@ Kafka events: an envelope with `eventId` (UUID), `eventType`, `schemaVersion`, `
 
 ### Catalog HTTP evolution
 
-The CRUD currently present only on `develop` is not the target contract. The planned v1 contract has administrative operations under `/api/v1/admin/products`, public GET/list under `/api/v1/products`, and no physical deletion. Public reads return only `ACTIVE` products; admin reads can inspect every state. Admin authorization is enforced in the service, not inferred from the route prefix. No administrative route may be exposed outside local/test environments before #38.
+The v1 contract has administrative operations under `/api/v1/admin/products`, public GET/list under `/api/v1/products`, and no physical deletion. Public reads return only `ACTIVE` products; admin reads can inspect every state. The service validates JWTs and enforces the `catalog_admin` client role for administrative operations; only the two public GET routes allow anonymous access.
 
-| Current behavior on develop | Planned v1 behavior | Implementation issue |
-|---|---|---|
-| POST `/api/v1/products` creates a product without a publication state | POST `/api/v1/admin/products` creates `DRAFT` | #36, then #38 for authorization |
-| GET `/api/v1/products` and `/{id}` return draft-equivalent and archived records | Public GET/list returns `ACTIVE` only; separate admin GET/list includes all states | #36–#38 |
-| PUT `/api/v1/products/{id}` replaces editable fields | Admin PATCH accepts a nonempty subset; SKU stays immutable | #36, then #38 |
-| PATCH `/api/v1/products/{id}/archive` sets a boolean | Admin POST activate/archive enforces lifecycle transitions | #36, then #38 |
-| Price is a JSON number; lists are arrays; archived is a boolean | BRL amount is a two-place decimal string; lists are bounded pages; status is an enum | #36–#37 |
-
-The current v1 API has not been promoted to `main`, so #36–#38 may replace it before the MVP release. No compatibility alias is planned. If a real consumer of the develop API is identified, its migration must be reviewed before changing the route. After v1 is released, removing or changing the meaning of a field or route requires a new version and migration plan; additive optional response fields can remain in v1. The contract is a target specification and does not assert that any planned route or authorization is implemented today. An unrecognized legacy price actor must not be invented when #39 introduces history.
+The service creates `DRAFT` products through administrative POST, updates editable fields through PATCH, and activates or archives without physical deletion. SKU stays immutable. Prices use two-place BRL decimal strings and lists use bounded pages. The previous unprotected CRUD routes have no compatibility alias. After the v1 release, incompatible changes require a new version and migration plan. Issue #39 still needs to add price history; a legacy actor must not be fabricated.
 
 Issue #36 migrates existing `archived=false` rows to `DRAFT` and `archived=true` rows to `ARCHIVED`. Unknown shipping values remain absent in administrative responses; the migration must not fabricate measurements. New products require all four shipping fields, and activation requires complete values. Public reads in #37 exclude drafts and archived products. This intentionally removes previously visible legacy rows from public results until an administrator completes and activates them.
 

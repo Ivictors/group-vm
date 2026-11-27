@@ -13,6 +13,7 @@ Payment starts only after all items have been reserved and the total for items p
 ## Services
 - No shared databases, cross-service table queries, or credentials for another service's database.
 - HTTP: timeouts, authentication, validation, payload limits, and retries only when safe.
+- The catalog service validates administrative JWT signature, issuer, audience `catalog-service`, expiry, not-before time, nonblank subject, and the `catalog_admin` client role. Only public product GET routes allow anonymous access; all other routes are denied unless explicitly authorized. Issue #48 verifies the isolated local Keycloak and PostgreSQL runtime.
 - Messaging: outbox/inbox, unique event ID, idempotent consumer, DLQ, and auditable replay.
 - External URLs: SSRF protection, a per-source allowlist, restrictions on redirects and private addresses, and a maximum response size.
 - Logs: correlation/trace ID, without tokens, bank data, secrets, or unnecessary PII.
