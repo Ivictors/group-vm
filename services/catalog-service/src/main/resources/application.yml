@@ -1,4 +1,9 @@
 spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${CATALOG_JWT_ISSUER_URI}
   datasource:
     url: ${CATALOG_DB_URL:jdbc:postgresql://localhost:5433/catalog}
     username: ${CATALOG_DB_USERNAME:catalog}

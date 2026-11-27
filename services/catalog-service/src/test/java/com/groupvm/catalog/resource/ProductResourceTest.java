@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -31,6 +33,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ProductResource.class)
 @ActiveProfiles("test")
+@Import(CatalogSecurity.class)
+@WithMockUser(authorities = "catalog_admin")
 class ProductResourceTest {
     private static final String ADMIN = "/api/v1/admin/products";
     private static final String CREATE = """
@@ -218,7 +222,7 @@ class ProductResourceTest {
     @Test
     void legacyPublicWriteRouteDoesNotExposeAdminOperations() throws Exception {
         mvc.perform(post("/api/v1/products").contentType(MediaType.APPLICATION_JSON).content(CREATE))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden());
         verifyNoInteractions(service);
     }
 
