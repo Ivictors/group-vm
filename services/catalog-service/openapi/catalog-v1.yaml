@@ -3,10 +3,8 @@ info:
   title: VmGriffes Catalog API
   version: 1.0.0
   description: >-
-    Target MVP contract from issue #35. It is not the current implementation.
-    Issues #36-#39 implement lifecycle, public reads, authorization, and price
-    history. Administrative operations must not be exposed outside local/test
-    environments before issue #38 is complete. Overlapping writes to the same
+    MVP contract from issue #35. Lifecycle, public reads, and authorization are
+    implemented; issue #39 adds price history. Overlapping writes to the same
     product are rejected with 409 concurrent_update; after refreshing the
     product, an administrator may retry. The MVP does not require a client
     precondition header. A later sequential write to the same field replaces
@@ -358,7 +356,7 @@ components:
       bearerFormat: JWT
       description: >-
         The service validates signature, issuer, audience catalog-service,
-        expiry, and the catalog_admin Keycloak client role in
+        expiry, not-before time, a nonblank subject, and the catalog_admin Keycloak client role in
         resource_access.catalog-service.roles. The validated token subject
         supplies the price-history actor; no actor field is accepted from JSON.
   parameters:

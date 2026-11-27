@@ -7,7 +7,6 @@ import com.groupvm.catalog.resource.dto.ProductPageResponse;
 import com.groupvm.catalog.resource.dto.ProductResponse;
 import com.groupvm.catalog.resource.dto.UpdateProductRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,7 +20,6 @@ import java.net.URI;
 import java.util.UUID;
 
 @RestController
-@Profile({"local", "test", "integration"})
 @RequestMapping("/api/v1/admin/products")
 public class ProductResource {
     private final ProductService service;

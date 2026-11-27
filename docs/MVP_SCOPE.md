@@ -31,7 +31,7 @@ These responsibilities may become independent services only after measured opera
 - `collector-service`, `market-intelligence-service`, and `ai-assistant-service` are outside the commerce MVP.
 - Independent `customer-service`, `shipping-service`, and `notification-service` deployments are deferred; their initial responsibilities remain in `commerce-service`.
 - Kafka is deferred until an approved event flow requires it. The first synchronous purchase path uses versioned HTTP contracts and idempotency keys.
-- Keycloak/OIDC is required before releasing administrative routes. Local and test profiles may use explicit test security configuration; production must deny administrative access until the security issue is complete.
+- Keycloak/OIDC is required before releasing administrative routes. The catalog service validates token signature, issuer, audience, subject, and `catalog_admin` client role itself; tests use generated tokens and keys.
 - Kong and Kubernetes/Helm remain deployment options, not prerequisites for local development or unit tests.
 
 ## Purchase flow
