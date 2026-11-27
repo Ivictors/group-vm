@@ -5,3 +5,17 @@ spring:
         jwt:
           issuer-uri: https://issuer.invalid/realms/catalog
           jwk-set-uri: http://127.0.0.1:1/jwks
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+      show-components: never
+      group:
+        readiness:
+          include: readinessState,db

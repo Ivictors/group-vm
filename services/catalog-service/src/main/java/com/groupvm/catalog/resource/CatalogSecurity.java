@@ -2,6 +2,7 @@ package com.groupvm.catalog.resource;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Value;
@@ -59,11 +60,11 @@ public class CatalogSecurity {
         var accessDeniedHandler = new BearerTokenAccessDeniedHandler();
         AuthenticationEntryPoint unauthorized = (request, response, failure) -> {
             authenticationEntryPoint.commence(request, response, failure);
-            writeProblem(response, objectMapper, HttpStatus.UNAUTHORIZED, "Unauthorized");
+            writeProblem(request, response, objectMapper, HttpStatus.UNAUTHORIZED, "Unauthorized");
         };
         AccessDeniedHandler forbidden = (request, response, failure) -> {
             accessDeniedHandler.handle(request, response, failure);
-            writeProblem(response, objectMapper, HttpStatus.FORBIDDEN, "Forbidden");
+            writeProblem(request, response, objectMapper, HttpStatus.FORBIDDEN, "Forbidden");
         };
         return http
                 .csrf(csrf -> csrf.disable())
@@ -72,6 +73,8 @@ public class CatalogSecurity {
                         .authenticationEntryPoint(unauthorized)
                         .accessDeniedHandler(forbidden))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/actuator/health/liveness", "/actuator/health/readiness")
+                        .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/products", "/api/v1/products/{productId}")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/admin/products", "/api/v1/admin/products/{productId}")
@@ -89,12 +92,13 @@ public class CatalogSecurity {
                 .build();
     }
 
-    private static void writeProblem(HttpServletResponse response, ObjectMapper mapper,
+    private static void writeProblem(HttpServletRequest request, HttpServletResponse response, ObjectMapper mapper,
                                      HttpStatus status, String title) throws IOException {
         response.setStatus(status.value());
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         var problem = ProblemDetail.forStatus(status);
         problem.setTitle(title);
+        problem.setProperty("correlationId", RequestCorrelationFilter.id(request));
         mapper.writeValue(response.getOutputStream(), problem);
     }
 

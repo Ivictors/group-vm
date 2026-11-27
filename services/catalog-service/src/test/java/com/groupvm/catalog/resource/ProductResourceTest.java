@@ -2,6 +2,7 @@ package com.groupvm.catalog.resource;
 
 import com.groupvm.catalog.application.ProductService;
 import com.groupvm.catalog.application.exception.DuplicateSkuException;
+import com.groupvm.catalog.application.exception.ProductNotFoundException;
 import com.groupvm.catalog.domain.Product;
 import com.groupvm.catalog.domain.exception.InvalidTransitionException;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
@@ -224,6 +226,48 @@ class ProductResourceTest {
         mvc.perform(post("/api/v1/products").contentType(MediaType.APPLICATION_JSON).content(CREATE))
                 .andExpect(status().isForbidden());
         verifyNoInteractions(service);
+    }
+
+    @Test
+    void applicationErrorsCarryTheResponseCorrelationIdWithoutInternalMessages() throws Exception {
+        assertCorrelated(mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"sku\":"))
+                .andExpect(status().isBadRequest()).andReturn().getResponse());
+
+        UUID missing = UUID.randomUUID();
+        when(service.get(missing)).thenThrow(new ProductNotFoundException(missing));
+        assertCorrelated(mvc.perform(get(ADMIN + "/{id}", missing))
+                .andExpect(status().isNotFound()).andReturn().getResponse());
+
+        when(service.create(any(), eq("user"))).thenThrow(new DuplicateSkuException("CHAIR-01"));
+        assertCorrelated(mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON).content(CREATE))
+                .andExpect(status().isConflict()).andReturn().getResponse());
+
+        when(service.create(any(), eq("user"))).thenThrow(new IllegalStateException("secret-internal-detail"));
+        var internal = mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON).content(CREATE))
+                .andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.detail", is("The request could not be completed")))
+                .andReturn().getResponse();
+        assertCorrelated(internal);
+        org.junit.jupiter.api.Assertions.assertFalse(internal.getContentAsString().contains("secret-internal-detail"));
+    }
+
+    @Test
+    void unsupportedRequestFormatRemainsUnsupportedMediaType() throws Exception {
+        mvc.perform(post(ADMIN).contentType(MediaType.TEXT_PLAIN).content("product"))
+                .andExpect(status().isUnsupportedMediaType())
+                .andExpect(header().exists("X-Correlation-ID"))
+                .andExpect(jsonPath("$.correlationId").isNotEmpty());
+        verifyNoInteractions(service);
+    }
+
+    private static void assertCorrelated(MockHttpServletResponse response) throws Exception {
+        String id = response.getHeader(RequestCorrelationFilter.HEADER);
+        org.junit.jupiter.api.Assertions.assertNotNull(id);
+        org.junit.jupiter.api.Assertions.assertEquals(id, UUID.fromString(id).toString());
+        org.junit.jupiter.api.Assertions.assertEquals(id,
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(response.getContentAsString())
+                        .get("correlationId").asText());
     }
 
     private static Product product() {

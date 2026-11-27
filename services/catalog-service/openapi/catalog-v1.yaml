@@ -9,6 +9,8 @@ info:
     product, an administrator may retry. The MVP does not require a client
     precondition header. A later sequential write to the same field replaces
     its prior value. The server checks the product version on concurrent writes.
+    Every response has a server-generated X-Correlation-ID header. Problem
+    responses repeat it as correlationId; a 406 response has no body.
 servers:
   - url: /
 security:
@@ -532,7 +534,7 @@ components:
     ProblemDetails:
       type: object
       description: RFC 9457 response without tokens, internal SQL, or sensitive details.
-      required: [type, title, status]
+      required: [type, title, status, correlationId]
       properties:
         type: {type: string, format: uri-reference}
         title: {type: string}
@@ -540,33 +542,51 @@ components:
         detail: {type: string}
         instance: {type: string, format: uri-reference}
         code: {type: string, description: Stable catalog error code where applicable.}
+        correlationId:
+          type: string
+          format: uuid
+          description: Server-generated identifier that also appears in X-Correlation-ID.
+  headers:
+    CorrelationId:
+      description: Server-generated request identifier. Incoming values are ignored.
+      schema: {type: string, format: uuid}
   responses:
     BadRequest:
       description: Invalid input, page/size, or product ID
+      headers:
+        X-Correlation-ID: {$ref: '#/components/headers/CorrelationId'}
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/ProblemDetails'}
-          example: {type: 'about:blank', title: Bad Request, status: 400}
+          example: {type: 'about:blank', title: Bad Request, status: 400, correlationId: '00000000-0000-4000-8000-000000000001'}
     Unauthorized:
       description: Missing, invalid, or expired bearer token
+      headers:
+        X-Correlation-ID: {$ref: '#/components/headers/CorrelationId'}
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/ProblemDetails'}
-          example: {type: 'about:blank', title: Unauthorized, status: 401}
+          example: {type: 'about:blank', title: Unauthorized, status: 401, correlationId: '00000000-0000-4000-8000-000000000001'}
     Forbidden:
       description: Authenticated caller lacks catalog_admin
+      headers:
+        X-Correlation-ID: {$ref: '#/components/headers/CorrelationId'}
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/ProblemDetails'}
-          example: {type: 'about:blank', title: Forbidden, status: 403}
+          example: {type: 'about:blank', title: Forbidden, status: 403, correlationId: '00000000-0000-4000-8000-000000000001'}
     NotFound:
       description: Unknown product, or nonactive product on a public route
+      headers:
+        X-Correlation-ID: {$ref: '#/components/headers/CorrelationId'}
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/ProblemDetails'}
-          example: {type: 'about:blank', title: Not Found, status: 404}
+          example: {type: 'about:blank', title: Not Found, status: 404, correlationId: '00000000-0000-4000-8000-000000000001'}
     DuplicateSkuConflict:
       description: The normalized SKU is already reserved, including by an archived product
+      headers:
+        X-Correlation-ID: {$ref: '#/components/headers/CorrelationId'}
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/ProblemDetails'}
@@ -575,8 +595,11 @@ components:
             title: Duplicate SKU
             status: 409
             code: duplicate_sku
+            correlationId: '00000000-0000-4000-8000-000000000001'
     ProductConflict:
       description: Invalid product transition or concurrent update
+      headers:
+        X-Correlation-ID: {$ref: '#/components/headers/CorrelationId'}
       content:
         application/problem+json:
           schema: {$ref: '#/components/schemas/ProblemDetails'}
@@ -587,9 +610,11 @@ components:
                 title: Invalid product transition
                 status: 409
                 code: invalid_transition
+                correlationId: '00000000-0000-4000-8000-000000000001'
             concurrentUpdate:
               value:
                 type: 'https://github.com/Ivictors/group-vm/issues/35#problem-concurrent-update'
                 title: Concurrent update
                 status: 409
                 code: concurrent_update
+                correlationId: '00000000-0000-4000-8000-000000000001'

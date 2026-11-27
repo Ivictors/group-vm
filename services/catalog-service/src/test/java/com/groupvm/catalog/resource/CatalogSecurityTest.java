@@ -21,6 +21,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import org.springframework.http.MediaType;
 
 @WebMvcTest({ProductResource.class, PublicProductResource.class})
@@ -53,5 +54,33 @@ class CatalogSecurityTest {
         mvc.perform(get("/api/v1/admin/products/unexpected/subroute")
                         .with(jwt().authorities(new SimpleGrantedAuthority("catalog_admin"))))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void unsupportedResponseFormatRemainsNotAcceptable() throws Exception {
+        when(publicService.list(0, 20)).thenReturn(new PageImpl<>(List.of(), PageRequest.of(0, 20), 0));
+        mvc.perform(get("/api/v1/products").accept(MediaType.APPLICATION_XML))
+                .andExpect(status().isNotAcceptable())
+                .andExpect(header().exists("X-Correlation-ID"));
+    }
+
+    @Test
+    void correlationIdIsGeneratedForSecurityErrorsAndUntrustedInputIsIgnored() throws Exception {
+        var unauthorized = mvc.perform(get("/api/v1/admin/products")
+                        .header("X-Correlation-ID", "client-controlled"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(header().exists("X-Correlation-ID"))
+                .andExpect(jsonPath("$.correlationId").isNotEmpty())
+                .andReturn().getResponse();
+        var id = unauthorized.getHeader("X-Correlation-ID");
+        org.junit.jupiter.api.Assertions.assertNotEquals("client-controlled", id);
+        org.junit.jupiter.api.Assertions.assertEquals(id,
+                new com.fasterxml.jackson.databind.ObjectMapper().readTree(unauthorized.getContentAsString())
+                        .get("correlationId").asText());
+
+        mvc.perform(get("/api/v1/admin/products").with(jwt()))
+                .andExpect(status().isForbidden())
+                .andExpect(header().exists("X-Correlation-ID"))
+                .andExpect(jsonPath("$.correlationId").isNotEmpty());
     }
 }
