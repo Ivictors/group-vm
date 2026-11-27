@@ -1,0 +1,22 @@
+<h1>Produtos</h1>
+@if (state() === 'loading') {
+  <p role="status">Carregando produtos...</p>
+} @else if (state() === 'error') {
+  <p role="alert">Não foi possível carregar os produtos.</p>
+  <button class="retry" (click)="load(page())">Tentar novamente</button>
+} @else if (result(); as products) {
+  @if (products.items.length === 0) {
+    <p>Nenhum produto nesta página.</p>
+  } @else {
+    <ul class="products">
+      @for (product of products.items; track product.id) {
+        <li><a [routerLink]="['/products', product.id]">{{ product.name }}</a><strong>{{ product.price.amount | brlPrice }}</strong></li>
+      }
+    </ul>
+  }
+  <nav aria-label="Paginação do catálogo">
+    <button class="previous" [disabled]="products.page === 0" (click)="load(products.page - 1)">Anterior</button>
+    <span>Página {{ products.page + 1 }} de {{ products.totalPages || 1 }}</span>
+    <button class="next" [disabled]="products.page + 1 >= products.totalPages" (click)="load(products.page + 1)">Próxima</button>
+  </nav>
+}
