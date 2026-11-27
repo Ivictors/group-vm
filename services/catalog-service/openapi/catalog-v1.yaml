@@ -3,12 +3,12 @@ info:
   title: VmGriffes Catalog API
   version: 1.0.0
   description: >-
-    MVP contract from issue #35. Lifecycle, public reads, and authorization are
-    implemented; issue #39 adds price history. Overlapping writes to the same
+    MVP contract from issue #35. Lifecycle, public reads, authorization, and
+    price history are implemented. Overlapping writes to the same
     product are rejected with 409 concurrent_update; after refreshing the
     product, an administrator may retry. The MVP does not require a client
     precondition header. A later sequential write to the same field replaces
-    its prior value. Issue #36 implements the server-side version check.
+    its prior value. The server checks the product version on concurrent writes.
 servers:
   - url: /
 security:
@@ -53,7 +53,7 @@ paths:
       description: >-
         SKU is trimmed, immutable, and unique ignoring case across all states.
         The validated token subject supplies the actor for the initial price
-        record once issue #39 implements the audit.
+        record.
       requestBody:
         required: true
         content:

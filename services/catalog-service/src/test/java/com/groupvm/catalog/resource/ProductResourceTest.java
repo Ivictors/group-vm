@@ -49,7 +49,7 @@ class ProductResourceTest {
     @Test
     void createsDraftWithLocationAndAdminResponse() throws Exception {
         Product product = product();
-        when(service.create(any())).thenReturn(product);
+        when(service.create(any(), eq("user"))).thenReturn(product);
         mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON).content(CREATE))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", ADMIN + "/" + product.getId()))
@@ -60,20 +60,20 @@ class ProductResourceTest {
                 .andExpect(jsonPath("$.weightGrams", is(4500)))
                 .andExpect(jsonPath("$.priceHistory").isArray());
         verify(service).create(argThat(command -> command.sku().equals(" CHAIR-01 ")
-                && command.price().compareTo(new BigDecimal("129.90")) == 0));
+                && command.price().compareTo(new BigDecimal("129.90")) == 0), eq("user"));
     }
 
     @Test
     void allowsPaddedSkuAndNameWhenTrimmedValuesFitLimits() throws Exception {
         Product product = product();
-        when(service.create(any())).thenReturn(product);
+        when(service.create(any(), eq("user"))).thenReturn(product);
         String sku = " " + "S".repeat(80) + " ";
         String name = " " + "N".repeat(160) + " ";
         mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON)
                         .content(CREATE.replace(" CHAIR-01 ", sku).replace("Chair", name)))
                 .andExpect(status().isCreated());
         verify(service).create(argThat(command -> command.sku().equals(sku)
-                && command.name().equals(name)));
+                && command.name().equals(name)), eq("user"));
     }
 
     @Test
@@ -95,7 +95,7 @@ class ProductResourceTest {
     @Test
     void patchCanClearDescriptionWithoutReplacingOtherFields() throws Exception {
         Product product = product();
-        when(service.update(eq(product.getId()), any())).thenReturn(product);
+        when(service.update(eq(product.getId()), any(), eq("user"))).thenReturn(product);
         mvc.perform(patch(ADMIN + "/{id}", product.getId())
                         .contentType(MediaType.APPLICATION_JSON).content("{\"description\":null}"))
                 .andExpect(status().isOk());
@@ -104,7 +104,7 @@ class ProductResourceTest {
             assertNull(command.description());
             assertNull(command.name());
             return true;
-        }));
+        }), eq("user"));
     }
 
     @Test
@@ -143,8 +143,8 @@ class ProductResourceTest {
         String escapedNul = "\\" + "u0000";
         Product product = product();
         UUID id = product.getId();
-        when(service.create(any())).thenReturn(product);
-        when(service.update(eq(id), any())).thenReturn(product);
+        when(service.create(any(), eq("user"))).thenReturn(product);
+        when(service.update(eq(id), any(), eq("user"))).thenReturn(product);
 
         for (String field : List.of("sku", "name", "description")) {
             String original = field.equals("sku") ? " CHAIR-01 "
@@ -187,7 +187,7 @@ class ProductResourceTest {
 
     @Test
     void usesSpecificProblemCodesWithoutLeakingDatabaseDetails() throws Exception {
-        when(service.create(any())).thenThrow(new DuplicateSkuException("CHAIR-01"));
+        when(service.create(any(), eq("user"))).thenThrow(new DuplicateSkuException("CHAIR-01"));
         mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON).content(CREATE))
                 .andExpect(status().isConflict()).andExpect(jsonPath("$.code", is("duplicate_sku")))
                 .andExpect(jsonPath("$.type", is("https://github.com/Ivictors/group-vm/issues/35#problem-duplicate-sku")));
@@ -206,14 +206,14 @@ class ProductResourceTest {
                 .andExpect(jsonPath("$.code", is("concurrent_update")))
                 .andExpect(jsonPath("$.type", is("https://github.com/Ivictors/group-vm/issues/35#problem-concurrent-update")))
                 .andExpect(jsonPath("$.detail", is("The product changed during this request")));
-        when(service.create(any())).thenThrow(new DataIntegrityViolationException("internal SQL",
+        when(service.create(any(), eq("user"))).thenThrow(new DataIntegrityViolationException("internal SQL",
                 new SQLException("duplicate key on uk_products_sku_ci", "23505")));
         mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON).content(CREATE))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.code", is("duplicate_sku")))
                 .andExpect(jsonPath("$.detail", is("The SKU is already in use")));
         doThrow(new DataIntegrityViolationException("internal SQL",
-                new SQLException("sensitive SQL detail", "23514"))).when(service).create(any());
+                new SQLException("sensitive SQL detail", "23514"))).when(service).create(any(), eq("user"));
         mvc.perform(post(ADMIN).contentType(MediaType.APPLICATION_JSON).content(CREATE))
                 .andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.detail", is("The request could not be completed")));

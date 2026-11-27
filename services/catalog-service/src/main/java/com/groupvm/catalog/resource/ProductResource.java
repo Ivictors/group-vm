@@ -2,6 +2,7 @@ package com.groupvm.catalog.resource;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.groupvm.catalog.application.ProductService;
+import com.groupvm.catalog.domain.Product;
 import com.groupvm.catalog.resource.dto.CreateProductRequest;
 import com.groupvm.catalog.resource.dto.ProductPageResponse;
 import com.groupvm.catalog.resource.dto.ProductResponse;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import java.net.URI;
 import java.util.UUID;
@@ -29,10 +31,10 @@ public class ProductResource {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponse> create(@RequestBody JsonNode body) {
-        var product = service.create(CreateProductRequest.from(body).toCommand());
+    public ResponseEntity<ProductResponse> create(@RequestBody JsonNode body, Authentication authentication) {
+        var product = service.create(CreateProductRequest.from(body).toCommand(), authentication.getName());
         return ResponseEntity.created(URI.create("/api/v1/admin/products/" + product.getId()))
-                .body(ProductResponse.from(product));
+                .body(response(product));
     }
 
     @GetMapping
@@ -43,21 +45,26 @@ public class ProductResource {
 
     @GetMapping("/{productId}")
     public ProductResponse get(@PathVariable UUID productId) {
-        return ProductResponse.from(service.get(productId));
+        return response(service.get(productId));
     }
 
     @PatchMapping("/{productId}")
-    public ProductResponse update(@PathVariable UUID productId, @RequestBody JsonNode body) {
-        return ProductResponse.from(service.update(productId, UpdateProductRequest.from(body).toCommand()));
+    public ProductResponse update(@PathVariable UUID productId, @RequestBody JsonNode body,
+                                  Authentication authentication) {
+        return response(service.update(productId, UpdateProductRequest.from(body).toCommand(), authentication.getName()));
     }
 
     @PostMapping("/{productId}/activate")
     public ProductResponse activate(@PathVariable UUID productId) {
-        return ProductResponse.from(service.activate(productId));
+        return response(service.activate(productId));
     }
 
     @PostMapping("/{productId}/archive")
     public ProductResponse archive(@PathVariable UUID productId) {
-        return ProductResponse.from(service.archive(productId));
+        return response(service.archive(productId));
+    }
+
+    private ProductResponse response(Product product) {
+        return ProductResponse.from(product, service.history(product.getId()));
     }
 }

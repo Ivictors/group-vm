@@ -8,6 +8,7 @@ import com.groupvm.catalog.domain.Product;
 import com.groupvm.catalog.domain.ProductStatus;
 import com.groupvm.catalog.domain.exception.InvalidProductException;
 import com.groupvm.catalog.infra.ProductRepository;
+import com.groupvm.catalog.infra.PriceHistoryRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Page;
@@ -29,7 +30,7 @@ class ProductServiceTest {
     @BeforeEach
     void setUp() {
         repository = mock(ProductRepository.class);
-        service = new ProductService(repository);
+        service = new ProductService(repository, mock(PriceHistoryRepository.class));
     }
 
     private CreateProductCommand createCommand(String sku) {
@@ -40,7 +41,7 @@ class ProductServiceTest {
     @Test
     void createsDraftWithNormalizedSkuWhenAvailable() {
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        Product product = service.create(createCommand(" sku-1 "));
+        Product product = service.create(createCommand(" sku-1 "), "operator");
         assertEquals("sku-1", product.getSku());
         assertEquals(ProductStatus.DRAFT, product.getStatus());
         verify(repository).existsBySkuIgnoreCase("sku-1");
@@ -50,7 +51,7 @@ class ProductServiceTest {
     @Test
     void rejectsCaseInsensitiveDuplicateWithoutSaving() {
         when(repository.existsBySkuIgnoreCase(argThat(sku -> sku.equalsIgnoreCase("sku-1")))).thenReturn(true);
-        assertThrows(DuplicateSkuException.class, () -> service.create(createCommand(" SKU-1 ")));
+        assertThrows(DuplicateSkuException.class, () -> service.create(createCommand(" SKU-1 "), "operator"));
         verify(repository).existsBySkuIgnoreCase("SKU-1");
         verify(repository, never()).save(any());
     }
@@ -59,7 +60,7 @@ class ProductServiceTest {
     void rejectsNullCharacterBeforeRepositoryAccess() {
         assertThrows(InvalidProductException.class, () -> service.create(
                 new CreateProductCommand("SKU", "Cha\u0000ir", null, new BigDecimal("10.00"), 100,
-                        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE)));
+                        BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE), "operator"));
         verifyNoInteractions(repository);
     }
 
@@ -100,7 +101,7 @@ class ProductServiceTest {
         when(repository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
 
         Product updated = service.update(product.getId(), new UpdateProductCommand("Table", null, false,
-                null, null, null, null, null));
+                null, null, null, null, null), "operator");
         assertEquals("Table", updated.getName());
         assertEquals(new BigDecimal("10.00"), updated.getPrice());
         assertEquals(ProductStatus.ACTIVE, service.activate(product.getId()).getStatus());
