@@ -23,6 +23,12 @@ Set `CATALOG_JWT_ISSUER_URI` to the Keycloak realm issuer before starting the se
 
 Only anonymous `GET /api/v1/products` and `GET /api/v1/products/{productId}` are allowed. Administrative routes require a valid token with `catalog_admin`; other routes are denied. Missing or invalid tokens return 401, and a valid token without permission returns 403. Product creation and price changes record the validated token subject as the actor. Client-supplied actor fields are rejected. Administrative product responses include price history, ordered oldest first; public responses do not expose it. Local tests use generated keys and a loopback JWK server; they do not need a running Keycloak instance.
 
+## Operations
+
+`GET /actuator/health/liveness` reports whether the process should stay running. `GET /actuator/health/readiness` also checks PostgreSQL; it returns 503 when the database indicator is down, while liveness can remain healthy. Both are anonymous and return only an overall status. Other Actuator paths, including metrics and the aggregate health endpoint, are denied. Locally, check them with `curl http://localhost:8081/actuator/health/liveness` and `curl http://localhost:8081/actuator/health/readiness`. If readiness is down, inspect database availability and connection settings, restore the dependency, and verify readiness before directing traffic to the service; do not restart a healthy process repeatedly to mask a database outage.
+
+Every request receives a server-generated `X-Correlation-ID`; client-supplied values are ignored. Problem responses repeat the identifier as `correlationId`; a 406 response has no body but still has the header. Operators can use the identifier to match an error to its log entry. Failure logs include only the identifier, HTTP method, status, and duration; they omit paths, queries, bodies, tokens, and personal data. Metrics, dashboards, and alerting are outside this increment.
+
 ## Migrations
 
 The validated local combination is Spring Boot `3.5.7`, Flyway `11.19.1`, and PostgreSQL `18.6`. Spring Boot manages Flyway `11.7.2` by default; this service overrides it. [Spring Boot dependencies](https://docs.spring.io/spring-boot/3.5/appendix/dependency-versions/coordinates.html) and [Flyway database support](https://documentation.red-gate.com/flyway/getting-started-with-flyway/system-requirements/supported-databases-and-versions) were checked on 2026-11-14. Revalidate the combination after version changes.
